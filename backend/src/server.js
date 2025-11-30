@@ -1,32 +1,45 @@
-import express from 'express'
-import dotenv from 'dotenv'
-import authRoute from './routes/auth.route.js'
-import messageRoute from './routes/message.route.js'
-import path from "path"
+import express from 'express';
+import dotenv from 'dotenv';
+import authRoute from './routes/auth.route.js';
+import messageRoute from './routes/message.route.js';
+
+import { fileURLToPath } from 'url';
+import path from 'path';
+
 dotenv.config();
 
-const app = express()
-const __dirname = path.resolve();
+const app = express();
 
+// Fix __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.get('/',(req,res)=>{
-    res.send("App server is running")
-})
+// Middleware
+app.use(express.json());
 
-app.use('/api/auth', authRoute)
-app.use("/api/mess",messageRoute)
+// Test route
+app.get('/', (req, res) => {
+    res.send("App server is running");
+});
 
-// make ready for deployment
+// API routes
+app.use('/api/auth', authRoute);
+app.use('/api/mess', messageRoute);
 
-if(process.env.NODE_ENV === "production"){
-    app.use(express.static(path.join(__dirname,"../frontend/chatApp/dist")))
+// Deployment setup
+if (process.env.NODE_ENV === "production") {
 
-    app.get("*", (_,res)=>{
-        res.sendFile(path.join(__dirname, "../frontend/chatApp/","dist","index.html"))
-    })
+    const frontendPath = path.join(__dirname, "../frontend/chatApp/dist");
+
+    app.use(express.static(frontendPath));
+
+    app.get("*", (_, res) => {
+        res.sendFile(path.join(frontendPath, "index.html"));
+    });
 }
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT,()=>{
-    console.log(`server is running on port ${PORT}`)
-})
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
