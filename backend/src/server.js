@@ -2,12 +2,13 @@ import express from 'express';
 import dotenv from 'dotenv';
 import authRoute from './routes/auth.route.js';
 import messageRoute from './routes/message.route.js';
-
+import connectDB from './config/connect.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-dotenv.config();
 
+dotenv.config();
+connectDB();
 const app = express();
 
 // Fix __dirname for ES Modules
@@ -25,8 +26,8 @@ app.get('/', (req, res) => {
 }
 
 // API routes
-app.use('/api/auth', authRoute);
-app.use('/api/mess', messageRoute);
+app.use('/api/login', authRoute);
+app.use('/api/signup', authRoute);
 
 // Deployment setup
 if (process.env.NODE_ENV === "production") {
