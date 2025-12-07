@@ -17,10 +17,12 @@ const __dirname = path.dirname(__filename);
 // Middleware
 app.use(express.json());
 
+if (process.env.NODE_ENV !== "production") {
 // Test route
 app.get('/', (req, res) => {
     res.send("App server is running");
 });
+}
 
 // API routes
 app.use('/api/auth', authRoute);
@@ -29,8 +31,8 @@ app.use('/api/mess', messageRoute);
 // Deployment setup
 if (process.env.NODE_ENV === "production") {
 
-    const frontendPath = path.join(__dirname, "../frontend/chatApp/dist");
-
+    const frontendPath = path.join(__dirname, "../../frontend/dist");
+     console.log("Serving frontend from:", frontendPath); 
     app.use(express.static(frontendPath));
 
     app.get("*", (_, res) => {
