@@ -28,6 +28,8 @@ app.get('/', (req, res) => {
 // API routes
 //app.use('/api/login', authRoute);
 app.use('/api/auth', authRoute);
+app.use("/api/auth",authRoute)
+
 
 // Deployment setup
 if (ENV.NODE_ENV === "production") {
