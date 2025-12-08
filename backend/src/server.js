@@ -5,9 +5,9 @@ import messageRoute from './routes/message.route.js';
 import connectDB from './config/connect.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import { ENV } from './config/env.js';
 
 
-dotenv.config();
 connectDB();
 const app = express();
 
@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 // Middleware
 app.use(express.json());
 
-if (process.env.NODE_ENV !== "production") {
+if (ENV.NODE_ENV !== "production") {
 // Test route
 app.get('/', (req, res) => {
     res.send("App server is running");
@@ -26,11 +26,11 @@ app.get('/', (req, res) => {
 }
 
 // API routes
-app.use('/api/login', authRoute);
-app.use('/api/signup', authRoute);
+//app.use('/api/login', authRoute);
+app.use('/api/auth', authRoute);
 
 // Deployment setup
-if (process.env.NODE_ENV === "production") {
+if (ENV.NODE_ENV === "production") {
 
     const frontendPath = path.join(__dirname, "../../frontend/dist");
      console.log("Serving frontend from:", frontendPath); 
@@ -41,7 +41,7 @@ if (process.env.NODE_ENV === "production") {
     });
 }
 
-const PORT = process.env.PORT || 3000;
+const PORT = ENV.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

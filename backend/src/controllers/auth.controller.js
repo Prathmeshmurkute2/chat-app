@@ -1,10 +1,11 @@
-import { Profiler } from 'react';
 import { generateToken } from '../config/token.config.js';
+import { senderWelcomeEmail } from '../Emails/emailHandlers.js';
 import User from '../models/user.model.js'
-import bcyrpt from 'bcryptjs'
+import bcrypt from 'bcryptjs'
+import { ENV } from '../config/env.js';
 
 
-export const signuup = async(req,res)=>{
+export const signup = async(req,res)=>{
     const { name, email , password } = req.body;
 
     try{
@@ -37,7 +38,7 @@ export const signuup = async(req,res)=>{
         if(newUser){
             generateToken(newUser._id,res)
 
-            await newUser.save();
+           const saveUser= await newUser.save();
 
             res.status(201).json({
                 _id:newUser._id,
@@ -45,6 +46,14 @@ export const signuup = async(req,res)=>{
                 email:newUser.email,
                 ProfilePic: newUser.ProfilePic,
             })
+
+            //todo : send a welcome email to user
+            try{
+                await senderWelcomeEmail(saveUser.email, saveUser.name, ENV.CLIENT_URL)
+            }catch(error){
+                console.error("Failed to send welcome email:",error);
+            }
+
         }else{
             res.status(400).json({ message:"Invalid user data"})
         }
@@ -57,10 +66,22 @@ export const signuup = async(req,res)=>{
 
 
 export const login = async(req,res)=>{
-    try{
+    const { email , password } = req.body;
 
+    try{
+        if(!email || !password){
+            return res.status(400).json({ message:"All feild are required" })
+        }
+
+        const user  = await User.findOne({email});
+        if(!user){
+            return res.status(400).json({ message:"User not found" })
+        }
+
+        generateToken()
     }
     catch(error){
-
+        console.log("Error in login page",error);
+        res.status(500).json({ message:"Internal server error"})
     }
 }
